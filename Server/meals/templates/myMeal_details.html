@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Details{% endblock %}
+{% block content %}
+ <section id="port-sec">
+   <div class="container">
+
+   <div class="row pad-row" >
+   <div class="col-md-12 col-sm-12" > 
+    <ul class="portfolio-items col-3"> 
+ 
+{% for food in fs %}
+    <li class="portfolio-item">
+        <div class="item-main">
+            <div class="portfolio-image">
+                <img src="{{ food.image.url }}" alt="">
+                <div class="overlay">
+                    <a class="preview btn btn-primary" title="{{ food.pub_date }}" href="{{ food.image.url }}">VIEW DETAILS</a>
+                </div>
+            </div>
+            <h5>{{ food.description }}</h5>
+        </div>
+    </li>
+
+{% endfor %}
+        </ul>
+    </div>
+   </div>
+
+</section>
+
+
+{% endblock %}
+
