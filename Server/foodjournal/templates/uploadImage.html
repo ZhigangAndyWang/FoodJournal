@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block content %}
+{% if form.is_multipart %}
+<p>hello</p>
+<p>hello</p>
+<form enctype="multipart/form-data" method="post" action="">
+{% else %}
+<form method="post" action="">
+{% endif %}
+{{ form }}
+<p><input type="submit" value="Upload" /></p>
+</form>
+
+{% endblock %}

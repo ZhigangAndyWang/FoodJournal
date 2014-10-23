@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Home</title>
+	<meta name="description" content="the online music shop to browse, preview and purchase video and music">
+	<meta name="author" content="Fang Wei 52208668">
+	<!-- Google Font and fontawesome -->
+	<link href='http://fonts.googleapis.com/css?family=Lily+Script+One' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Roboto+Slab' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="/static/css/font-awesome/css/font-awesome.min.css">
+	<!-- style definition -->
+	<link rel="stylesheet" href="/static/css/style.css">
+	<link rel="stylesheet" href="/static/css/responsive.css">
+	<script src='/static/js/fw.js'></script>
+	<script src='/static/js/data.js'></script>
+	<script src='/static/js/script.js'></script>
+	<script src='/static/js/script_home.js'></script>
+</head>
+<body>
+	<!-- changed  according to song cover's color
+	using: gr_red/orange/teal/silver/blue/dark/magenta/purple with different nav color theme
+	 -->
+	<div class='gr_silver bg'> 
+	<div class="topline">
+		<a class="logo left animated bounceInRight" href='home.html'>
+			<img src="/static/images/logo.png" alt="logo">
+			<span>City Media Entertainment </span>
+			<span id='nowtime'></span>
+		</a>
+		<ul>
+			<li><a href='#'>Home</a></li>
+			<li><a href='#' class='active'>All</a>
+				<ul>
+					<li><a class='nav_all'>All</a></li>
+					<li><a class='nav_music'>Music</a></li>
+					<li><a class='nav_video'>Video</a></li>
+				</ul>
+			</li>
+			<li><a href="design.html">Design</a></li>
+			<li><a href="registration.html">Join us</a></li>
+		</ul>
+		<div class='nav_phone r4'><i class="icon-reorder"></i>
+			<div class="nav_phone_gap"></div>
+			<div class="nav_phone_link">
+				<ul>
+					<li><a href='#'>Home</a></li>
+					<li><a href='#' class='active'>All</a>
+						<ul>
+							<li><a class='nav_all'>All</a></li>
+							<li><a class='nav_music'>Music</a></li>
+							<li><a class='nav_video'>Video</a></li>
+						</ul>
+					</li>
+					<li><a href="design.html">Design</a></li>
+					<li><a href="registration.html">Join us</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="subnav" id='music'>
+	<h2>Category>Music</h2>
+	<ul class="btn_group btn_grey right category">
+		<li><a class='sort active' sortBy='year' subBy='title' title='sort by year' onclick='sortItem(this)'>year</a></li>
+		<li><a class='sort' sortBy='artist' subBy='title' title='sort by artist' onclick='sortItem(this)'>artist</a></li>
+		<li><a class='sort' sortBy='title' subBy='artist' title='sort by title' onclick='sortItem(this)'>title</a></li>
+	</ul>
+	<hr>
+	</div>
+	<div class="container bounceInUp animated music">	
+	
+	</div>
+	<!-- end of container -->
+	<div class='subnav' id='video'>
+	<h2>Category>Video</h2>
+	<hr>
+	</div>
+	<div class="container bounceInUp animated video">	
+	
+	</div>
+	<!-- end of container -->
+	<div class="footer">
+		<div class="footer_container">
+		<div class="col5">
+			<h3>HOME</h3>
+			<ul>
+				<li><a href="">Search</a></li>
+				<li><a href="registration.html">Register</a></li>
+				<li><a href="">About Us</a></li>
+				<li><a href="design.html">Design</a></li>
+			</ul>
+		</div>
+		<div class="col5">
+			<h3>MEDIA</h3>
+			<ul>
+				<li><a href="music.html">Music</a></li>
+				<li><a href="video.html">Video</a></li>
+				<li><a href="">Photo</a></li>
+			</ul>
+		</div>
+		<div class="col5">
+			<h3>TERMS&amp;CONDITON</h3>
+			<ul>
+				<li><a href="">Legal</a></li>
+				<li><a href="">Copyright</a></li>
+				<li><a href="">Rental</a></li>
+				<li><a href="">Purchase</a></li>
+			</ul>
+		</div>
+		<div class="col5">
+			<h3>Contact Us</h3>
+			<ul>
+				<li><a href="">Feedback</a></li>
+				<li><a href="">e-mail</a></li>
+				<li><a href="">Office Location</a></li>
+			</ul>
+		</div>
+		<div class="col5 social">
+			<h3>Copyright © Fang Wei 52208668</h3>
+			<div>
+				<h6>follow us on</h6>
+				<a href="" title='follow us on tumblr'><i class="icon-tumblr-sign"></i></a>
+				<a href="" title='follow us on youtube'><i class="icon-youtube-sign"></i></a>
+				<a href="" title='follow us on google plus'><i class="icon-google-plus-sign"></i></a>
+				<a href="" title='follow us on twitter'><i class="icon-twitter-sign"></i></a>
+				<a href="" title='follow us on facebook'><i class="icon-facebook-sign"></i></a>
+			</div>
+		</div>
+		</div>
+	</div>
+	</div>
+	<div class="nav_drop animated fadeOut"><div class='r4'><i class="icon icon-4x icon-spinner icon-spin"></i></div></div>
+</body>
+</html>
