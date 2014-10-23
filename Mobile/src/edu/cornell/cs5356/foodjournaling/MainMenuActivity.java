@@ -1,17 +1,25 @@
 package edu.cornell.cs5356.foodjournaling;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -30,6 +38,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import edu.cornell.cs5356.foodjournaling.image.FoodImage;
+import edu.cornell.cs5356.foodjournaling.user.DatabaseHandler;
 import edu.cornell.cs5356.foodjournaling.user.MultipartEntity;
 import edu.cornell.cs5356.foodjournaling.user.UserFunctions;
 
@@ -39,13 +49,16 @@ public class MainMenuActivity extends Activity {
 	Button btnTakePic;
 	ProgressDialog dialog = null;
 	private ImageView mImageView;
+	private TextView mTextView1, mTextView2;
 	
 	TextView welcomeText;
-	String username = "UNKOWN";
+	String username = "UNKNOWN";
 
 	private static final String TAG = "MainMenu";
 	private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
 	private Uri picUri;
+	private String serverUri = "http://54.172.32.59:8000";
+	private String getImageUri = "http://54.172.32.59:8000/getImages/username=andy";
 
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
@@ -65,7 +78,9 @@ public class MainMenuActivity extends Activity {
 	        welcomeText = (TextView) findViewById(R.id.welcome_text);
 	        welcomeText.setText("Hi, " + username);
 
-			mImageView = (ImageView) findViewById(R.id.imageView1);
+			mImageView = (ImageView) findViewById(R.id.main_menu_imageView1);
+			mTextView1 = (TextView) findViewById(R.id.main_menu_textView1);
+			mTextView2 = (TextView) findViewById(R.id.main_menu_textView2);
 
 			btnTakePic = (Button) findViewById(R.id.btnTakePic);
 			btnTakePic.setOnClickListener(new View.OnClickListener() {
@@ -76,7 +91,6 @@ public class MainMenuActivity extends Activity {
 					// start the image capture Intent
 					if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
 						picUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
-						System.out.println("picUri: " + picUri);
 						takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
 								picUri);
 						startActivityForResult(takePictureIntent,
@@ -89,16 +103,16 @@ public class MainMenuActivity extends Activity {
 			btnLogout.setOnClickListener(new View.OnClickListener() {
 
 				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
 					userFunctions.logoutUser(getApplicationContext());
 					Intent login = new Intent(getApplicationContext(),
 							LoginActivity.class);
 					login.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(login);
-					// Closing dashboard screen
 					finish();
 				}
 			});
+			
+			new GetImagesTask().execute(getImageUri);
 
 		} else {
 			// user is not logged in show login screen
@@ -114,21 +128,7 @@ public class MainMenuActivity extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
-			if (resultCode == RESULT_OK) {
-				// Image captured and saved to fileUri specified in the Intent
-				// Toast.makeText(this, "Image saved to:\n" +
-				// data.getData(), Toast.LENGTH_LONG).show();
-				// Toast.makeText(this, "Uploading image " + data.getData() +
-				// " to server", Toast.LENGTH_LONG).show();
-				// dialog = ProgressDialog.show(DashboardActivity.this, "",
-				// "Uploading file...", true);
-				/*
-				 * System.out.println("data: " + data); Bundle extras =
-				 * data.getExtras(); Bitmap imageBitmap = (Bitmap)
-				 * extras.get("data"); mImageView.setImageBitmap(imageBitmap);
-				 * System.out.println("3");
-				 */
-				
+			if (resultCode == RESULT_OK) {				
 				Intent uploadPicIntent = new Intent(getApplicationContext(),
 						UploadImageActivity.class);				
 				uploadPicIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -186,91 +186,78 @@ public class MainMenuActivity extends Activity {
 
 		return mediaFile;
 	}
-
-	private class UploadTask extends AsyncTask<Bitmap, Void, Void> {
-
-		protected Void doInBackground(Bitmap... bitmaps) {
-			if (bitmaps[0] == null)
-				return null;
-			setProgress(0);
-
-			Bitmap bitmap = bitmaps[0];
-			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream); // convert
-																		// Bitmap
-																		// to
-																		// ByteArrayOutputStream
-			InputStream in = new ByteArrayInputStream(stream.toByteArray()); // convert
-																				// ByteArrayOutputStream
-																				// to
-																				// ByteArrayInputStream
-
-			DefaultHttpClient httpclient = new DefaultHttpClient();
+	
+	private class GetImagesTask extends AsyncTask<String, Void, FoodImage> {
+		@Override
+		protected FoodImage doInBackground(String... params) {
+			FoodImage fImage = new FoodImage();
+			String loadingImagesUrl = params[0];
+			
+			StringBuilder sb = new StringBuilder();
 			try {
-				HttpPost httppost = new HttpPost(
-						"http://192.168.8.84:8003/savetofile.php"); // server
-
-				MultipartEntity reqEntity = new MultipartEntity();
-				reqEntity.addPart("myFile",
-						System.currentTimeMillis() + ".jpg", in);
-				httppost.setEntity(reqEntity);
-
-				Log.i(TAG, "request " + httppost.getRequestLine());
-				HttpResponse response = null;
-				try {
-					response = httpclient.execute(httppost);
-				} catch (ClientProtocolException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				DefaultHttpClient httpclient = new DefaultHttpClient();
+				HttpGet httpGet = new HttpGet(loadingImagesUrl);
+				
+				HttpResponse response = httpclient.execute(httpGet);
+				
+				if (response != null) {
+					Log.i(TAG, "response " + response.getStatusLine().toString());
+					HttpEntity httpEntity = response.getEntity();
+					InputStream is = httpEntity.getContent();
+					BufferedReader reader = new BufferedReader(new InputStreamReader(
+							is, "iso-8859-1"), 8);
+					
+					String line = null;
+					while ((line = reader.readLine()) != null) {
+						sb.append(line + "\n");
+					}
+					is.close();
+					
+					String imagePath = "";
+					String imageDesc = "";
+					String createdTime = "";
+					JSONObject json = new JSONObject(sb.toString());
+					if(json.getString("images") != null) {
+						JSONArray json_array = json.getJSONArray("images");
+						
+						for(int i=0; i<json_array.length(); i++) {
+							JSONObject json_object = new JSONObject(json_array.getString(i));
+							
+							System.out.println(json_object.getString("imageUrl"));
+							imagePath = json_object.getString("imageUrl");
+							imageDesc = json_object.getString("description");
+							createdTime = json_object.getString("created_date");
+						}
+					}
+	
+					URL imageUrl = new URL(serverUri + imagePath);
+					Bitmap bmp = BitmapFactory.decodeStream(imageUrl.openConnection().getInputStream());
+                    fImage.setBmp(bmp);
+                    fImage.setDescription(imageDesc);
+                    fImage.setTimestamp(createdTime);
+					
 				}
-				try {
-					if (response != null)
-						Log.i(TAG, "response "
-								+ response.getStatusLine().toString());
-				} finally {
-
-				}
-			} finally {
-
+				
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-			return null;
+			
+			return fImage;
 		}
 
 		@Override
-		protected void onProgressUpdate(Void... values) {
-			// TODO Auto-generated method stub
-			super.onProgressUpdate(values);
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			// TODO Auto-generated method stub
-			super.onPostExecute(result);
-			Toast.makeText(MainMenuActivity.this, "uploaded", Toast.LENGTH_LONG)
-					.show();
+		protected void onPostExecute(FoodImage result) {
+			if (result != null) {
+				try {
+					mImageView.setImageBitmap(Bitmap.createScaledBitmap(result.getBmp(), 120, 120, false));
+					mTextView1.setText(result.getDescription());
+					mTextView2.setText(result.getTimestamp());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}	
+			} else {
+				//loginErrorMsg.setText(result);
+			}
 		}
 	}
-
 }

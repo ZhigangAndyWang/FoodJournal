@@ -12,8 +12,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
@@ -45,6 +47,18 @@ public class JSONParser {
 			httpPost.setEntity(new UrlEncodedFormEntity(params));
 
 			HttpResponse httpResponse = httpClient.execute(httpPost);
+			
+			CookieStore store = ((DefaultHttpClient) httpClient).getCookieStore();
+
+			List<Cookie> cookies = store.getCookies();
+			System.out.println("cookies: " + cookies);
+			if (cookies != null) {
+			    for (Cookie c : cookies) { 
+			        System.out.println("Name ["+c.getName()+"] - Val ["+c.getValue()+"] - Domain ["+c.getDomain()+"] - Path ["+c.getPath()+"]");
+			        store.addCookie(c);
+			    }
+			}
+			
 			HttpEntity httpEntity = httpResponse.getEntity();
 			is = httpEntity.getContent();
 

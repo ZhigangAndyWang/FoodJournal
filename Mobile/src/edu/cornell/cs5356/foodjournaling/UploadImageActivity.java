@@ -11,18 +11,25 @@ import java.io.InputStreamReader;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.json.JSONObject;
 
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -83,55 +90,47 @@ public class UploadImageActivity extends Activity {
 		this.setPic(picUri);
 	}
 
-	private class uploadImageTask extends AsyncTask<Void, Void, Void> {
+	private class uploadImageTask extends AsyncTask<Void, Void, String> {
 		@Override
-		protected Void doInBackground(Void... params) {
+		protected String doInBackground(Void... params) {
+			StringBuilder sb = new StringBuilder();
 			
 			setProgress(0);
 
 			DefaultHttpClient httpclient = new DefaultHttpClient();
+			
+			// Create a local instance of cookie store
+			CookieStore cookieStore = new BasicCookieStore();
+			// Create local HTTP context
+            HttpContext localContext= new BasicHttpContext();
+            // Bind custom cookie store to the local context
+            localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+			
 			try {
 				HttpPost httpPost = new HttpPost(uploadUrl); // server
 
-				//String imageUri = "/storage/emulated/0/Pictures/LetsEatPics/IMG_20141013_171657.jpg";
-				String imageUri = "/storage/emulated/0/Pictures/Screenshots/Screenshot_2013-12-09-11-25-34.png";
-				
-				File file = new File(imageUri);
-				FileBody fileBody = new FileBody(file);
+				File file = new File(picUri.getPath());
+
+				SharedPreferences prefs = getSharedPreferences("Letseat", MODE_PRIVATE);
+		        String username = prefs.getString("username", "UNKNOWN");
+		        System.out.println("username: " + username);
 				
 				MultipartEntityBuilder multipartEntity = MultipartEntityBuilder.create();
 				multipartEntity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
 				
-				multipartEntity.addPart("file", fileBody);
-				//multipartEntity.addBinaryBody("file", file, ContentType.DEFAULT_BINARY, file.getName());
+				//FileBody fileBody = new FileBody(file);
+				//multipartEntity.addPart("file", fileBody);
+				multipartEntity.addBinaryBody("file", file, ContentType.DEFAULT_BINARY, file.getName());
 				multipartEntity.addPart("description", new StringBody("test description", ContentType.MULTIPART_FORM_DATA));
+				multipartEntity.addPart("username", new StringBody(username, ContentType.MULTIPART_FORM_DATA));
 				
 				httpPost.setEntity(multipartEntity.build());
 				
 				//set header for anth
 				//request.setHeader("Authorization", "Bearer 83ebeabdec09f6670863766f792ead24d61fe3f9");
-				
-				/*
-				MultipartEntity reqEntity = new MultipartEntity();
-				//reqEntity.addPart("myFile",
-						//System.currentTimeMillis() + ".jpg", in);
-				reqEntity.addPart("file",
-						"file:///storage/emulated/0/Pictures/LetsEatPics/IMG_2014013_171657.jpg", in);
-				reqEntity.addPart("description", "This is lunch");
-				httppost.setEntity(reqEntity);
-				*/
 
 				Log.i(TAG, "request " + httpPost.getRequestLine());
-				HttpResponse response = null;
-				try {
-					response = httpclient.execute(httpPost);
-				} catch (ClientProtocolException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				HttpResponse response = httpclient.execute(httpPost, localContext);
 				
 				if (response != null) {
 					Log.i(TAG, "response " + response.getStatusLine().toString());
@@ -139,7 +138,7 @@ public class UploadImageActivity extends Activity {
 					InputStream is = httpEntity.getContent();
 					BufferedReader reader = new BufferedReader(new InputStreamReader(
 							is, "iso-8859-1"), 8);
-					StringBuilder sb = new StringBuilder();
+					
 					String line = null;
 					while ((line = reader.readLine()) != null) {
 						sb.append(line + "\n");
@@ -153,7 +152,7 @@ public class UploadImageActivity extends Activity {
 				e.printStackTrace();
 			}
 
-			return null;
+			return sb.toString();
 		}
 
 		@Override
@@ -163,20 +162,36 @@ public class UploadImageActivity extends Activity {
 		}
 
 		@Override
-		protected void onPostExecute(Void result) {
-			// TODO Auto-generated method stub
-			super.onPostExecute(result);
-			Toast.makeText(UploadImageActivity.this, "uploaded",
-					Toast.LENGTH_LONG).show();
+		protected void onPostExecute(String result) {
+			try {
+				JSONObject jObj = new JSONObject(result); 
+				
+				if(jObj.getString("success") != null) {
+					int success_result = Integer.parseInt(jObj.getString("success"));
+					
+					if (success_result == 1) {
+						// super.onPostExecute(result);
+						Toast.makeText(UploadImageActivity.this, "uploaded",
+								Toast.LENGTH_LONG).show();
+
+						Intent dashboard = new Intent(getApplicationContext(),
+								MainMenuActivity.class);
+						// Close all views before launching Dashboard
+						dashboard.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivity(dashboard);
+						finish();
+					} else if (success_result == 0) {
+						Toast.makeText(UploadImageActivity.this, "upload failed",
+								Toast.LENGTH_LONG).show();
+					}
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 	}
-
-	/*
-	 * @Override protected void onPostExecute(String result) {
-	 * 
-	 * }
-	 */
 	
 	private void setPic(Uri picUri) {
 		String mCurrentPhotoPath = picUri.getPath();

@@ -1,41 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-     
-    <TextView android:id="@+id/welcome_text"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:text="WELCOME"
-              android:textSize="20dip"
-              android:gravity="left"
-              android:layout_marginTop="20dip"/>
-    
-    <Button android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Take a picture"
-        android:textSize="20dip"
-        android:textColor="#21dbd4"
-        android:textStyle="bold"
-        android:id="@+id/btnTakePic"
-        android:layout_marginTop="80dip"
-        android:background="@null"/>
 
-    <ImageView 
-      android:layout_width="120dip"
-      android:layout_height="120dip" 
-      android:visibility="visible"
-      android:id="@+id/imageView1" />
-     
-    <Button android:layout_width="fill_parent"
+    <TextView
+        android:id="@+id/welcome_text"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Logout Me"
-        android:textSize="20dip"
-        android:textColor="#21dbd4"
-        android:textStyle="bold"
+        android:layout_marginTop="20dip"
+        android:gravity="left"
+        android:text="WELCOME"
+        android:textSize="20dip" />
+
+    <Button
         android:id="@+id/btnLogout"
-        android:layout_marginTop="40dip"
-        android:background="@null"/>
- 
-</LinearLayout>
+        android:layout_width="133dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/btnTakePic"
+        android:layout_alignBottom="@+id/btnTakePic"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="17dp"
+        android:background="@null"
+        android:text="Logout Me"
+        android:textColor="#21dbd4"
+        android:textSize="20dip"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btnTakePic"
+        android:layout_width="142dp"
+        android:layout_height="34dp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/welcome_text"
+        android:layout_marginTop="20dp"
+        android:background="@null"
+        android:text="Take a picture"
+        android:textColor="#21dbd4"
+        android:textSize="20dip"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/main_menu_textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/main_menu_textView1"
+        android:layout_marginTop="15dp"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/main_menu_textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/main_menu_imageView1"
+        android:layout_marginTop="25dp"
+        android:text="TextView" />
+
+    <ImageView
+        android:id="@+id/main_menu_imageView1"
+        android:layout_width="match_parent"
+        android:layout_height="220dip"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/btnLogout"
+        android:layout_marginTop="30dp"
+        android:layout_weight="0.88"
+        android:visibility="visible" />
+
+</RelativeLayout>
