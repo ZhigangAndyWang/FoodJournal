@@ -4,8 +4,10 @@ import android.graphics.Bitmap;
 
 public class FoodImage {
 	private Bitmap bmp;
+	private String imageUri;
 	private String description;
 	private String timestamp;
+	private String username;
 	
 	public FoodImage(){
 		
@@ -17,6 +19,14 @@ public class FoodImage {
 
 	public void setBmp(Bitmap bmp) {
 		this.bmp = bmp;
+	}
+	
+	public String getimageUri() {
+		return imageUri;
+	}
+
+	public void setimageUri(String imageUri) {
+		this.imageUri = imageUri;
 	}
 
 	public String getDescription() {
@@ -33,6 +43,14 @@ public class FoodImage {
 
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
+	}
+	
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 }

@@ -110,7 +110,7 @@ public class RegisterActivity extends Activity {
 			if (result.equals("1")) {
 				// Launch Dashboard Screen
 				Intent dashboard = new Intent(getApplicationContext(),
-						MainMenuActivity.class);
+						MainTabActivity.class);
 				// Close all views before launching Dashboard
 				dashboard.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(dashboard);

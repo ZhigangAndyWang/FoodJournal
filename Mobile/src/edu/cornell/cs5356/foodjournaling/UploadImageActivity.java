@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,6 +27,8 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONObject;
 
+import edu.cornell.cs5356.foodjournaling.user.UserFunctions;
+
 
 import android.app.Activity;
 import android.content.Intent;
@@ -38,6 +41,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -48,6 +52,7 @@ public class UploadImageActivity extends Activity {
 	Button btnSumbitPic;
 	Button btnCancelPic;
 	private ImageView mImageView;
+	private EditText mEditText;
 	private Uri picUri;
 
 	@Override
@@ -58,6 +63,7 @@ public class UploadImageActivity extends Activity {
 		mImageView = (ImageView) findViewById(R.id.imageViewUpload1);
 		System.out.println("mimageView: " + mImageView);
 		System.out.println("HW: " + mImageView.getHeight() + ":" + mImageView.getWidth());
+		mEditText = (EditText) findViewById(R.id.picDescription);
 		
 		Bundle bundle = getIntent().getExtras();
 		if(bundle != null) {
@@ -66,8 +72,8 @@ public class UploadImageActivity extends Activity {
 		
 		btnSumbitPic = (Button) findViewById(R.id.btnSumbitPic);
 		btnSumbitPic.setOnClickListener(new View.OnClickListener() {
-
 			public void onClick(View view) {
+				btnSumbitPic.setEnabled(false);
 				new uploadImageTask().execute();
 			}
 		});
@@ -77,7 +83,7 @@ public class UploadImageActivity extends Activity {
 
 			public void onClick(View view) {
 				Intent mainMenuActivity = new Intent(getApplicationContext(),
-						MainMenuActivity.class);
+						MainTabActivity.class);
 				mainMenuActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(mainMenuActivity);
 				finish();
@@ -109,10 +115,22 @@ public class UploadImageActivity extends Activity {
 			try {
 				HttpPost httpPost = new HttpPost(uploadUrl); // server
 
+				BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+				Bitmap bitmap = BitmapFactory.decodeFile(picUri.getPath(), bmOptions);
+				
 				File file = new File(picUri.getPath());
+				FileOutputStream fOut = new FileOutputStream(file);
+
+				bitmap.compress(Bitmap.CompressFormat.JPEG, 10, fOut);
+				fOut.flush();
+			    fOut.close();
+				
+				//Bitmap bitMapFile = decodeSampledBitmapFromResource(picUri.getPath(), 80, 60);
 
 				SharedPreferences prefs = getSharedPreferences("Letseat", MODE_PRIVATE);
-		        String username = prefs.getString("username", "UNKNOWN");
+		        //String username = prefs.getString("username", "UNKNOWN");
+				UserFunctions userFunctions = new UserFunctions();
+				String username = userFunctions.getUsername(getApplicationContext());
 		        System.out.println("username: " + username);
 				
 				MultipartEntityBuilder multipartEntity = MultipartEntityBuilder.create();
@@ -121,7 +139,7 @@ public class UploadImageActivity extends Activity {
 				//FileBody fileBody = new FileBody(file);
 				//multipartEntity.addPart("file", fileBody);
 				multipartEntity.addBinaryBody("file", file, ContentType.DEFAULT_BINARY, file.getName());
-				multipartEntity.addPart("description", new StringBody("test description", ContentType.MULTIPART_FORM_DATA));
+				multipartEntity.addPart("description", new StringBody(mEditText.getText().toString(), ContentType.MULTIPART_FORM_DATA));
 				multipartEntity.addPart("username", new StringBody(username, ContentType.MULTIPART_FORM_DATA));
 				
 				httpPost.setEntity(multipartEntity.build());
@@ -175,7 +193,7 @@ public class UploadImageActivity extends Activity {
 								Toast.LENGTH_LONG).show();
 
 						Intent dashboard = new Intent(getApplicationContext(),
-								MainMenuActivity.class);
+								MainTabActivity.class);
 						// Close all views before launching Dashboard
 						dashboard.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						startActivity(dashboard);
@@ -215,5 +233,47 @@ public class UploadImageActivity extends Activity {
 		Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
 		mImageView.setImageBitmap(bitmap);
 	}
+	
+	public static int calculateInSampleSize(BitmapFactory.Options options,
+            int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            // Calculate ratios of height and width to requested height and
+            // width
+            final int heightRatio = Math.round((float) height
+                    / (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+
+            // Choose the smallest ratio as inSampleSize value, this will
+            // guarantee
+            // a final image with both dimensions larger than or equal to the
+            // requested height and width.
+            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+        }
+
+        return inSampleSize;
+    }
+
+    public static Bitmap decodeSampledBitmapFromResource(String path,
+            int reqWidth, int reqHeight) {
+        Log.d("path", path);
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth,
+                reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(path, options);
+    }
 
 }

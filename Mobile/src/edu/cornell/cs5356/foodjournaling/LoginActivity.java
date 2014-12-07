@@ -72,6 +72,7 @@ public class LoginActivity extends ActionBarActivity {
 			}
 		});
 
+		/*
 		hackLogin = (TextView) findViewById(R.id.hack_to_login);
 		// Listening to register new account link
 		hackLogin.setOnClickListener(new View.OnClickListener() {
@@ -83,6 +84,7 @@ public class LoginActivity extends ActionBarActivity {
 				startActivity(i);
 			}
 		});
+		*/
 	}
 
 	@Override
@@ -153,7 +155,7 @@ public class LoginActivity extends ActionBarActivity {
 				// Launch Dashboard Screen
 				Intent dashboard = new Intent(
 						getApplicationContext(),
-						MainMenuActivity.class);
+						MainTabActivity.class);
 
 				// Close all views before launching Dashboard
 				dashboard.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

@@ -1,6 +1,7 @@
 package edu.cornell.cs5356.foodjournaling.user;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
  
 import org.apache.http.NameValuePair;
@@ -84,6 +85,13 @@ public class UserFunctions {
 		DatabaseHandler db = new DatabaseHandler(context);
 		db.resetTables();
 		return true;
+	}
+	
+	public String getUsername(Context context){
+		DatabaseHandler db = new DatabaseHandler(context);
+		HashMap<String, String> results = db.getUserDetails();
+		
+		return results.get("name");
 	}
 	
 }

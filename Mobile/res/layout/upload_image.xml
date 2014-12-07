@@ -6,23 +6,28 @@
 
     <TextView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dip"
+        android:layout_height="70dp"
         android:gravity="center"
+        android:background="@color/theme_color"
+        android:textColor="@android:color/white"
         android:text="Upload images"
         android:textSize="30dip" />
- 
+
     <ImageView
         android:id="@+id/imageViewUpload1"
-        android:layout_width="120dip"
-        android:layout_height="120dip"
-        android:visibility="visible" />  
+        android:layout_width="150dip"
+        android:layout_height="150dip"
+        android:layout_gravity="center"
+        android:visibility="visible" />
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dip"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:text="Description"
-        android:textColor="#959399" />
+        android:textColor="@color/theme_color" />
 
     <EditText
         android:id="@+id/picDescription"
@@ -30,6 +35,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dip"
         android:layout_marginTop="5dip"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:singleLine="false" />
     
     <Button
@@ -37,9 +44,11 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dip"
-        android:background="@null"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@color/theme_color"
         android:text="Submit"
-        android:textColor="#21dbd4"
+        android:textColor="@android:color/white"
         android:textSize="20dip"
         android:textStyle="bold" />
     
@@ -48,9 +57,11 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dip"
-        android:background="@null"
+        android:layout_marginLeft="10dp"
+              android:layout_marginRight="10dp"
+        android:background="@color/theme_color"
         android:text="Cancel"
-        android:textColor="#21dbd4"
+        android:textColor="@android:color/white"
         android:textSize="20dip"
         android:textStyle="bold" />
 

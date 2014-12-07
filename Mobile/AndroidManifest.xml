@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="16"
         android:targetSdkVersion="21" />
 
     <!-- Allow to connect with internet -->
@@ -17,36 +17,70 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme" 
+        android:largeHeap="true" >
+        
         <activity
             android:label="@string/app_name"
-            android:name=".MainMenuActivity" >
+            android:name=".MainTabActivity" 
+            android:screenOrientation="portrait" >
             <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <!--  Login Activity -->
+        <activity
+            android:label="My Page"
+            android:name=".MainMenuActivity" 
+            android:screenOrientation="portrait" >
+        </activity>
          
         <!--  Login Activity -->
         <activity
             android:label="Login Account"
-            android:name=".LoginActivity">
+            android:name=".LoginActivity" >
         </activity>
  
         <!--  Register Activity -->
         <activity
             android:label="Register New Account"
-            android:name=".RegisterActivity">
+            android:name=".RegisterActivity" >
         </activity>
         
         <!--  Upload image Activity -->
         <activity
             android:label="Upload Image"
-            android:name=".UploadImageActivity">
+            android:name=".UploadImageActivity" >
+        </activity>
+        
+        <!--  Recommend Activity -->
+        <activity
+            android:label="Recommend Activity"
+            android:name=".RecommendActivity" 
+            android:screenOrientation="portrait" >
+        </activity>
+        
+        <!--  Recommend Activity -->
+        <activity
+            android:label="Tag Activity"
+            android:name=".TagsActivity" 
+            android:screenOrientation="portrait" >
+        </activity>
+        
+        <!--  Recommend Activity -->
+        <activity
+            android:label="Tag List Activity"
+            android:name=".TagsListActivity" 
+            android:screenOrientation="portrait" >
         </activity>
         
     </application>
