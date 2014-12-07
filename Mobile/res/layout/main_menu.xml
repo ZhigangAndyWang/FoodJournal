@@ -51,6 +51,19 @@
             android:textSize="20dip"
             android:textStyle="bold" />
     </LinearLayout>
+    
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="23dp"
+        android:layout_marginRight="23dp"
+        android:layout_marginTop="50dp"
+        android:layout_below="@id/welcome_text"
+        android:minHeight="50dp"
+        android:minWidth="200dp" />
 
     <ListView
         android:id="@+id/listView1"
@@ -61,20 +74,6 @@
         android:layout_marginTop="10dp" >
     </ListView>
     
-    <ProgressBar
-        android:id="@+id/progressBar1"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="23dp"
-        android:layout_marginRight="23dp"
-        android:layout_marginTop="20dp"
-        android:layout_below="@id/welcome_text"
-        android:indeterminate="false"
-        android:max="100"
-        android:minHeight="50dp"
-        android:minWidth="200dp"
-        android:progress="1" />
+    
 
 </RelativeLayout>

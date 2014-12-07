@@ -83,6 +83,13 @@
             android:screenOrientation="portrait" >
         </activity>
         
+        <!--  Friends Activity -->
+        <activity
+            android:label="Friends Activity"
+            android:name=".FriendsActivity" 
+            android:screenOrientation="portrait" >
+        </activity>
+        
     </application>
     
     

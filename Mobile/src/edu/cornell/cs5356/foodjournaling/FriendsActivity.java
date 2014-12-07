@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,22 +33,26 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
 import edu.cornell.cs5356.foodjournaling.image.FoodImage;
 import edu.cornell.cs5356.foodjournaling.image.FoodImageAdapter;
 import edu.cornell.cs5356.foodjournaling.image.FoodImageRecommendAdapter;
 import edu.cornell.cs5356.foodjournaling.user.UserFunctions;
 
-public class TagsListActivity extends Activity {
+public class FriendsActivity extends Activity {
 	UserFunctions userFunctions;
-	Button btnLogout;
+	Button btnFollow;
 	Button btnTakePic;
+	TextView textview1;
 	ProgressDialog dialog = null;
 	
 	private ProgressBar progressBar;
@@ -60,10 +65,12 @@ public class TagsListActivity extends Activity {
 	private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
 	private Uri picUri;
 	public static final String SERVER_URI = "http://54.172.32.59:8000";
-	private String getImageUri = "http://54.172.32.59:8000/tags/tag=";
+	private String getImageUri = "http://54.172.32.59:8000/getImages/username=";
 
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
+	
+	public boolean follow_flag = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -72,7 +79,7 @@ public class TagsListActivity extends Activity {
 		userFunctions = new UserFunctions();
 		if (userFunctions.isUserLoggedIn(getApplicationContext())) {
 			// user already logged in show databoard
-			setContentView(R.layout.tags_list);
+			setContentView(R.layout.friends);
 			
 			SharedPreferences prefs = getSharedPreferences("Letseat", MODE_PRIVATE);
 	        //username = prefs.getString("username", "UNKNOWN");
@@ -83,13 +90,28 @@ public class TagsListActivity extends Activity {
 			progressBar.setMax(100);
 			progressBar.setProgress(0);
 			
+			textview1 = (TextView) findViewById(R.id.friend_text);
 			Bundle extras = getIntent().getExtras();
 			if (extras != null) {
-			    String value = extras.getString("TAG_NAME");
-			    System.out.println("!!!!!!!TAG_NAME: " + value);
+			    String value = extras.getString("USERNAME");
+			    System.out.println("!!!!!!!USERNAME: " + value);
 			    getImageUri = getImageUri + value;
+			    textview1.setText(value);
 			}
 			
+			btnFollow = (Button) findViewById(R.id.follow_btn);
+			btnFollow.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View arg0) {
+					if(!follow_flag) {
+						btnFollow.setText("Followed");
+						follow_flag = true;
+					} else {
+						btnFollow.setText("Follow");
+						follow_flag = false;
+					}
+					
+				}
+			});
 			
 			new GetImagesTask().execute(getImageUri);
 
@@ -176,7 +198,7 @@ public class TagsListActivity extends Activity {
 					String imagePath = "";
 					String imageDesc = "";
 					String createdTime = "";
-					String username = "";
+					//String username = "";
 					System.out.println("sb: " + sb.toString());
 					JSONObject json = new JSONObject(sb.toString());
 					if(json.getString("images") != null) {
@@ -189,9 +211,9 @@ public class TagsListActivity extends Activity {
 							imagePath = json_object.getString("imageUrl");
 							imageDesc = json_object.getString("description");
 							createdTime = json_object.getString("created_date");
-							username = json_object.getString("username");
+							//username = json_object.getString("username");
 							
-							URL imageUrl = new URL(TagsListActivity.SERVER_URI
+							URL imageUrl = new URL(FriendsActivity.SERVER_URI
 									+ imagePath);
 							Bitmap bmp = BitmapFactory.decodeStream(imageUrl.openConnection()
 									.getInputStream());
@@ -201,7 +223,7 @@ public class TagsListActivity extends Activity {
 							fImage.setimageUri(imagePath);
 		                    fImage.setDescription(imageDesc);
 		                    fImage.setTimestamp(createdTime);
-		                    fImage.setUsername(username);
+		                    //fImage.setUsername(username);
 							
 		                    foodList.add(fImage);
 						}
@@ -220,12 +242,39 @@ public class TagsListActivity extends Activity {
 			if (result != null) {
 				try {
 					
-					TagsListActivity.this.progressBar.setProgress(100);
-					TagsListActivity.this.progressBar.setVisibility(View.GONE);
+					FriendsActivity.this.progressBar.setProgress(100);
+					FriendsActivity.this.progressBar.setVisibility(View.GONE);
 					
-					FoodImageRecommendAdapter adapter = new FoodImageRecommendAdapter(TagsListActivity.this, result);
+					FoodImageRecommendAdapter adapter = new FoodImageRecommendAdapter(FriendsActivity.this, result);
 					ListView listView = (ListView) findViewById(R.id.listView1);
 					listView.setAdapter(adapter);
+					
+					listView.setOnItemClickListener(new OnItemClickListener() {
+						@Override
+						public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+							final FoodImage item = (FoodImage) parent.getItemAtPosition(position);
+							
+							final Dialog dialog = new Dialog(FriendsActivity.this);
+							dialog.setContentView(R.layout.dialog_image);
+							dialog.setTitle(item.getDescription());
+							
+							//TextView text = (TextView) dialog.findViewById(R.id.tv_dialog_image1);
+							//text.setText(item.getDescription());
+							ImageView image = (ImageView) dialog.findViewById(R.id.dialog_image1);
+							image.setImageBitmap(Bitmap.createScaledBitmap(item.getBmp(), 640, 560, false));
+							
+							Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
+							// if button is clicked, close the custom dialog
+							dialogButton.setOnClickListener(new OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									dialog.dismiss();
+								}
+							});
+				 
+							dialog.show();
+						}
+					});
 				} catch (Exception e) {
 					e.printStackTrace();
 				}	

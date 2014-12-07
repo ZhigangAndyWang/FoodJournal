@@ -33,12 +33,14 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
 import edu.cornell.cs5356.foodjournaling.image.FoodImage;
 import edu.cornell.cs5356.foodjournaling.image.FoodImageAdapter;
 import edu.cornell.cs5356.foodjournaling.image.FoodImageRecommendAdapter;
@@ -80,31 +82,8 @@ public class RecommendActivity extends Activity {
 			
 			progressBar = (ProgressBar) findViewById(R.id.progressBar1);
 			progressBar.setIndeterminate(true);
-			
-			// Start long running operation in a background thread
-			new Thread(new Runnable() {
-				public void run() {
-					while (progressStatus < 100) {
-						progressStatus += 1;
-						// Update the progress bar and display the
-						// current value in the text view
-						handler.post(new Runnable() {
-							public void run() {
-								progressBar.setProgress(progressStatus);
-							}
-						});
-						try {
-							// Sleep for 200 milliseconds.
-							// Just to display the progress slowly
-							Thread.sleep(200);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}).start();
-			
-			progressBar.setVisibility(4);
+			progressBar.setMax(100);
+			progressBar.setProgress(0);
 			
 			getImageUri = getImageUri + username;
 			new GetImagesTask().execute(getImageUri);
@@ -235,9 +214,24 @@ public class RecommendActivity extends Activity {
 		protected void onPostExecute(ArrayList<FoodImage> result) {
 			if (result != null) {
 				try {
+					
+					RecommendActivity.this.progressBar.setProgress(100);
+					RecommendActivity.this.progressBar.setVisibility(View.GONE);
+					
 					FoodImageRecommendAdapter adapter = new FoodImageRecommendAdapter(RecommendActivity.this, result);
 					ListView listView = (ListView) findViewById(R.id.listView1);
 					listView.setAdapter(adapter);
+					
+					listView.setOnItemClickListener(new OnItemClickListener() {
+						@Override
+						public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+							final FoodImage item = (FoodImage) parent.getItemAtPosition(position);
+							Intent friend = new Intent(getApplicationContext(), FriendsActivity.class);
+							friend.putExtra("USERNAME", item.getUsername());
+							startActivity(friend);
+						}
+					});
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}	

@@ -31,8 +31,8 @@ public class MainTabActivity extends TabActivity {
 		tab2.setContent(new Intent(this, RecommendActivity.class));
 
 		tab3.setIndicator("Tags");
-		//tab3.setContent(new Intent(this, TagsActivity.class));
-		tab3.setContent(new Intent(this, TagsListActivity.class));
+		tab3.setContent(new Intent(this, TagsActivity.class));
+		//tab3.setContent(new Intent(this, TagsListActivity.class));
 
 		/** Add the tabs to the TabHost to display. */
 		tabHost.addTab(tab1);

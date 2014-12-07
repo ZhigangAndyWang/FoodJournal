@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,13 +33,16 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
 import edu.cornell.cs5356.foodjournaling.image.FoodImage;
 import edu.cornell.cs5356.foodjournaling.image.FoodImageAdapter;
 import edu.cornell.cs5356.foodjournaling.image.FoodImageRecommendAdapter;
@@ -89,6 +93,17 @@ public class TagsActivity extends Activity {
 			TagsAdapter adapter = new TagsAdapter(TagsActivity.this, result);
 			ListView listView = (ListView) findViewById(R.id.listView1);
 			listView.setAdapter(adapter);
+			
+			listView.setOnItemClickListener(new OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					final String item = (String) parent.getItemAtPosition(position);
+					
+					Intent tag_list = new Intent(getApplicationContext(), TagsListActivity.class);
+					tag_list.putExtra("TAG_NAME", item.substring(1));
+					startActivity(tag_list);
+				}
+			});
 
 		} else {
 			// user is not logged in show login screen

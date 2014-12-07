@@ -112,46 +112,10 @@ public class MainMenuActivity extends Activity {
 				}
 			});
 
-			/*
-			 * // Create a progress bar to display while the list loads
-			 * ProgressBar progressBar = new ProgressBar(this);
-			 * progressBar.setLayoutParams(new
-			 * LayoutParams(LayoutParams.WRAP_CONTENT,
-			 * LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-			 * progressBar.setIndeterminate(true);
-			 * getListView().setEmptyView(progressBar);
-			 * 
-			 * // Must add the progress bar to the root of the layout ViewGroup
-			 * root = (ViewGroup) findViewById(android.R.id.content);
-			 * root.addView(progressBar);
-			 */
 			progressBar = (ProgressBar) findViewById(R.id.progressBar1);
 			progressBar.setIndeterminate(true);
-
-			// Start long running operation in a background thread
-			new Thread(new Runnable() {
-				public void run() {
-					while (progressStatus < 100) {
-						progressStatus += 1;
-						// Update the progress bar and display the
-						// current value in the text view
-						handler.post(new Runnable() {
-							public void run() {
-								progressBar.setProgress(progressStatus);
-							}
-						});
-						try {
-							// Sleep for 200 milliseconds.
-							// Just to display the progress slowly
-							Thread.sleep(200);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}).start();
-
-			progressBar.setVisibility(4);
+			progressBar.setMax(100);
+			progressBar.setProgress(0);
 
 			getImageUri = getImageUri + username;
 			new GetImagesTask().execute(getImageUri);
@@ -302,6 +266,9 @@ public class MainMenuActivity extends Activity {
 		protected void onPostExecute(ArrayList<FoodImage> result) {
 			if (result != null) {
 				try {
+					
+					MainMenuActivity.this.progressBar.setProgress(100);
+					MainMenuActivity.this.progressBar.setVisibility(View.GONE);
 
 					FoodImageAdapter adapter = new FoodImageAdapter(
 							MainMenuActivity.this, result);
@@ -320,7 +287,7 @@ public class MainMenuActivity extends Activity {
 							//TextView text = (TextView) dialog.findViewById(R.id.tv_dialog_image1);
 							//text.setText(item.getDescription());
 							ImageView image = (ImageView) dialog.findViewById(R.id.dialog_image1);
-							image.setImageBitmap(Bitmap.createScaledBitmap(item.getBmp(), 480, 480, false));
+							image.setImageBitmap(Bitmap.createScaledBitmap(item.getBmp(), 640, 560, false));
 							
 							Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
 							// if button is clicked, close the custom dialog
@@ -334,29 +301,7 @@ public class MainMenuActivity extends Activity {
 							dialog.show();
 						}
 					});
-
-					/*
-					 * String[] desc_array = new String[result.size()]; int i =
-					 * 0; for(FoodImage fImage : result) { desc_array[i++] =
-					 * fImage.getDescription(); }
-					 * 
-					 * ArrayAdapter<String> adapter = new
-					 * ArrayAdapter<String>(MainMenuActivity.this,
-					 * android.R.layout.simple_list_item_1, desc_array);
-					 * 
-					 * ListView listView = (ListView)
-					 * findViewById(R.id.listView1);
-					 * listView.setAdapter(adapter);
-					 */
-
-					// URL imageUrl = new URL(serverUri + imagePath);
-					// Bitmap bmp =
-					// BitmapFactory.decodeStream(imageUrl.openConnection().getInputStream());
-
-					// mImageView.setImageBitmap(Bitmap.createScaledBitmap(result.get(0),
-					// 120, 120, false));
-					// mTextView1.setText(result.get(1).getDescription());
-					// mTextView2.setText(result.get(1).getTimestamp());
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -365,5 +310,9 @@ public class MainMenuActivity extends Activity {
 			}
 		}
 
+	}
+	
+	public void setValue(int progress) {
+		this.progressBar.setProgress(progress);		
 	}
 }
