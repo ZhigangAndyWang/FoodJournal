@@ -17,13 +17,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,7 +32,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -44,16 +41,16 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
+import edu.cornell.cs5356.foodjournaling.image.FollowingAdapter;
 import edu.cornell.cs5356.foodjournaling.image.FoodImage;
 import edu.cornell.cs5356.foodjournaling.image.FoodImageAdapter;
 import edu.cornell.cs5356.foodjournaling.image.FoodImageRecommendAdapter;
 import edu.cornell.cs5356.foodjournaling.user.UserFunctions;
 
-public class FriendsActivity extends Activity {
+public class FollowingActivity extends Activity {
 	UserFunctions userFunctions;
-	Button btnFollow;
+	Button btnLogout;
 	Button btnTakePic;
-	TextView textview1;
 	ProgressDialog dialog = null;
 	
 	private ProgressBar progressBar;
@@ -62,16 +59,14 @@ public class FriendsActivity extends Activity {
 	
 	String username = "UNKNOWN";
 
-	private static final String TAG = "RecommendActivity";
+	private static final String TAG = "FollowingActivity";
 	private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
 	private Uri picUri;
 	public static final String SERVER_URI = "http://54.172.32.59:8000";
-	private String getImageUri = "http://54.172.32.59:8000/getImages/username=";
+	private String getImageUri = "http://54.172.32.59:8000/getFriends/username=";
 
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
-	
-	public boolean follow_flag = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -80,7 +75,7 @@ public class FriendsActivity extends Activity {
 		userFunctions = new UserFunctions();
 		if (userFunctions.isUserLoggedIn(getApplicationContext())) {
 			// user already logged in show databoard
-			setContentView(R.layout.friends);
+			setContentView(R.layout.tags_list);
 			
 			SharedPreferences prefs = getSharedPreferences("Letseat", MODE_PRIVATE);
 	        //username = prefs.getString("username", "UNKNOWN");
@@ -91,43 +86,15 @@ public class FriendsActivity extends Activity {
 			progressBar.setMax(100);
 			progressBar.setProgress(0);
 			
-			textview1 = (TextView) findViewById(R.id.friend_text);
-			btnFollow = (Button) findViewById(R.id.follow_btn);
-			
+			/*
 			Bundle extras = getIntent().getExtras();
 			if (extras != null) {
-			    String value = extras.getString("USERNAME");
-			    System.out.println("!!!!!!!USERNAME: " + value);
+			    String value = extras.getString("TAG_NAME");
+			    System.out.println("!!!!!!!TAG_NAME: " + value);
 			    getImageUri = getImageUri + value;
-			    textview1.setText(value);
-			    
-			    String followed = extras.getString("FOLLOWED");
-			    if(followed != null && followed.equals("TRUE")) {
-			    	btnFollow.setText("Followed");
-					btnFollow.setTextColor(Color.WHITE);
-					btnFollow.setBackgroundColor(getResources().getColor(R.color.theme_color));
-			    }
-			    
-			}
+			}*/
 			
-			
-			btnFollow.setOnClickListener(new View.OnClickListener() {
-				public void onClick(View arg0) {
-					if(!follow_flag) {
-						btnFollow.setText("Followed");
-						btnFollow.setTextColor(Color.WHITE);
-						btnFollow.setBackgroundColor(getResources().getColor(R.color.theme_color));
-						follow_flag = true;
-					} else {
-						btnFollow.setText("Follow");
-						btnFollow.setTextColor(Color.BLACK);
-						btnFollow.setBackgroundColor(Color.LTGRAY);
-						follow_flag = false;
-					}
-					
-				}
-			});
-			
+			getImageUri = getImageUri + username;
 			new GetImagesTask().execute(getImageUri);
 
 		} else {
@@ -183,10 +150,10 @@ public class FriendsActivity extends Activity {
 		return mediaFile;
 	}
 	
-	private class GetImagesTask extends AsyncTask<String, Void, ArrayList<FoodImage>> {
+	private class GetImagesTask extends AsyncTask<String, Void, ArrayList<String>> {
 		@Override
-		protected ArrayList<FoodImage> doInBackground(String... params) {
-			ArrayList<FoodImage> foodList = new ArrayList<FoodImage>();
+		protected ArrayList<String> doInBackground(String... params) {
+			ArrayList<String> followingList = new ArrayList<String>();
 			
 			String loadingImagesUrl = params[0];
 			
@@ -210,37 +177,18 @@ public class FriendsActivity extends Activity {
 					}
 					is.close();
 					
-					String imagePath = "";
-					String imageDesc = "";
-					String createdTime = "";
-					//String username = "";
+					String username = "";
 					System.out.println("sb: " + sb.toString());
 					JSONObject json = new JSONObject(sb.toString());
-					if(json.getString("images") != null) {
-						JSONArray json_array = json.getJSONArray("images");
+					if(json.getString("friends") != null) {
+						JSONArray json_array = json.getJSONArray("friends");
 						
 						for(int i=0; i<json_array.length(); i++) {
 							JSONObject json_object = new JSONObject(json_array.getString(i));
 							
-							System.out.println(json_object.getString("imageUrl"));
-							imagePath = json_object.getString("imageUrl");
-							imageDesc = json_object.getString("description");
-							createdTime = json_object.getString("created_date");
-							//username = json_object.getString("username");
+							username = json_object.getString("username");
 							
-							URL imageUrl = new URL(FriendsActivity.SERVER_URI
-									+ imagePath);
-							Bitmap bmp = BitmapFactory.decodeStream(imageUrl.openConnection()
-									.getInputStream());
-		                    
-							FoodImage fImage = new FoodImage();
-							fImage.setBmp(bmp);
-							fImage.setimageUri(imagePath);
-		                    fImage.setDescription(imageDesc);
-		                    fImage.setTimestamp(createdTime);
-		                    //fImage.setUsername(username);
-							
-		                    foodList.add(fImage);
+		                    followingList.add(username);
 						}
 					}
 				}
@@ -249,45 +197,29 @@ public class FriendsActivity extends Activity {
 				e.printStackTrace();
 			}
 			
-			return foodList;
+			return followingList;
 		}
 
 		@Override
-		protected void onPostExecute(ArrayList<FoodImage> result) {
+		protected void onPostExecute(ArrayList<String> result) {
 			if (result != null) {
 				try {
 					
-					FriendsActivity.this.progressBar.setProgress(100);
-					FriendsActivity.this.progressBar.setVisibility(View.GONE);
+					FollowingActivity.this.progressBar.setProgress(100);
+					FollowingActivity.this.progressBar.setVisibility(View.GONE);
 					
-					FoodImageRecommendAdapter adapter = new FoodImageRecommendAdapter(FriendsActivity.this, result);
+					FollowingAdapter adapter = new FollowingAdapter(FollowingActivity.this, result);
 					ListView listView = (ListView) findViewById(R.id.listView1);
 					listView.setAdapter(adapter);
 					
 					listView.setOnItemClickListener(new OnItemClickListener() {
 						@Override
 						public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-							final FoodImage item = (FoodImage) parent.getItemAtPosition(position);
-							
-							final Dialog dialog = new Dialog(FriendsActivity.this);
-							dialog.setContentView(R.layout.dialog_image);
-							dialog.setTitle(item.getDescription());
-							
-							//TextView text = (TextView) dialog.findViewById(R.id.tv_dialog_image1);
-							//text.setText(item.getDescription());
-							ImageView image = (ImageView) dialog.findViewById(R.id.dialog_image1);
-							image.setImageBitmap(Bitmap.createScaledBitmap(item.getBmp(), 640, 560, false));
-							
-							Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
-							// if button is clicked, close the custom dialog
-							dialogButton.setOnClickListener(new OnClickListener() {
-								@Override
-								public void onClick(View v) {
-									dialog.dismiss();
-								}
-							});
-				 
-							dialog.show();
+							final String item = (String) parent.getItemAtPosition(position);
+							Intent friend = new Intent(getApplicationContext(), FriendsActivity.class);
+							friend.putExtra("USERNAME", item);
+							friend.putExtra("FOLLOWED", "TRUE");
+							startActivity(friend);
 						}
 					});
 				} catch (Exception e) {

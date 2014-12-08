@@ -33,6 +33,25 @@
         android:id="@+id/picDescription"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="5dip"
+        android:layout_marginTop="5dip"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:singleLine="false" />
+    
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dip"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:text="Tag"
+        android:textColor="@color/theme_color" />
+
+    <EditText
+        android:id="@+id/picTag"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="20dip"
         android:layout_marginTop="5dip"
         android:layout_marginLeft="10dp"
@@ -43,7 +62,7 @@
         android:id="@+id/btnSumbitPic"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dip"
+        android:layout_marginTop="10dip"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:background="@color/theme_color"

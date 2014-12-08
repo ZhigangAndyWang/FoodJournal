@@ -16,37 +16,24 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class FoodImageAdapter extends ArrayAdapter<FoodImage> {
-	public FoodImageAdapter(Context context, ArrayList<FoodImage> foodImages) {
-		super(context, 0, foodImages);
+public class FollowingAdapter extends ArrayAdapter<String> {
+	public FollowingAdapter(Context context, ArrayList<String> tags) {
+		super(context, 0, tags);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// Get the data item for this position
-		FoodImage foodImage = getItem(position);
+		String tag = getItem(position);
 		// Check if an existing view is being reused, otherwise inflate the view
 		if (convertView == null) {
 			convertView = LayoutInflater.from(getContext()).inflate(
-					R.layout.item_food_image, parent, false);
+					R.layout.item_following, parent, false);
 		}
 
-		try {
-			// Lookup view for data population
-			ImageView mImageView = (ImageView) convertView
-					.findViewById(R.id.item_food_imageView1);
-			
-			//mImageView.setImageBitmap(Bitmap.createScaledBitmap(foodImage.getBmp(), 120, 120, false));
-			mImageView.setImageBitmap(foodImage.getBmp());
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-
-		TextView tvDesc = (TextView) convertView.findViewById(R.id.tvDesc);
-		TextView tvDate = (TextView) convertView.findViewById(R.id.tvDate);
+		TextView tvTag = (TextView) convertView.findViewById(R.id.tvFollowing);
 		// Populate the data into the template view using the data object
-		tvDesc.setText(foodImage.getDescription());
-		tvDate.setText(foodImage.getTimestamp());
+		tvTag.setText(tag);
 		// Return the completed view to render on screen
 		return convertView;
 	}

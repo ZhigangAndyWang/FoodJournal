@@ -287,7 +287,8 @@ public class MainMenuActivity extends Activity {
 							//TextView text = (TextView) dialog.findViewById(R.id.tv_dialog_image1);
 							//text.setText(item.getDescription());
 							ImageView image = (ImageView) dialog.findViewById(R.id.dialog_image1);
-							image.setImageBitmap(Bitmap.createScaledBitmap(item.getBmp(), 640, 560, false));
+							//image.setImageBitmap(Bitmap.createScaledBitmap(item.getBmp(), 640, 560, false));
+							image.setImageBitmap(item.getBmp());
 							
 							Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
 							// if button is clicked, close the custom dialog

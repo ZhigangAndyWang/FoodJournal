@@ -21,6 +21,7 @@ public class MainTabActivity extends TabActivity {
 		TabSpec tab1 = tabHost.newTabSpec("First Tab");
 		TabSpec tab2 = tabHost.newTabSpec("Second Tab");
 		TabSpec tab3 = tabHost.newTabSpec("Third tab");
+		TabSpec tab4 = tabHost.newTabSpec("Forth tab");
 
 		// Set the Tab name and Activity
 		// that will be opened when particular Tab will be selected
@@ -33,11 +34,15 @@ public class MainTabActivity extends TabActivity {
 		tab3.setIndicator("Tags");
 		tab3.setContent(new Intent(this, TagsActivity.class));
 		//tab3.setContent(new Intent(this, TagsListActivity.class));
+		
+		tab4.setIndicator("Friends");
+		tab4.setContent(new Intent(this, FollowingActivity.class));
 
 		/** Add the tabs to the TabHost to display. */
 		tabHost.addTab(tab1);
 		tabHost.addTab(tab2);
 		tabHost.addTab(tab3);
+		tabHost.addTab(tab4);
 		
 		/*
 		for(int i=0;i<tabHost.getTabWidget().getChildCount();i++) 

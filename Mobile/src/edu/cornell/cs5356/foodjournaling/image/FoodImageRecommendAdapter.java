@@ -36,7 +36,8 @@ public class FoodImageRecommendAdapter extends ArrayAdapter<FoodImage> {
 			ImageView mImageView = (ImageView) convertView
 					.findViewById(R.id.item_food_imageView1);
 			
-			mImageView.setImageBitmap(Bitmap.createScaledBitmap(foodImage.getBmp(), 120, 120, false));
+			//mImageView.setImageBitmap(Bitmap.createScaledBitmap(foodImage.getBmp(), 120, 120, false));
+			mImageView.setImageBitmap(foodImage.getBmp());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

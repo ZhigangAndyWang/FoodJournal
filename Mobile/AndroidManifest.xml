@@ -41,19 +41,24 @@
         <activity
             android:label="My Page"
             android:name=".MainMenuActivity" 
+            android:windowSoftInputMode="stateHidden"
             android:screenOrientation="portrait" >
         </activity>
          
         <!--  Login Activity -->
         <activity
             android:label="Login Account"
-            android:name=".LoginActivity" >
+            android:name=".LoginActivity" 
+            android:windowSoftInputMode="stateHidden" 
+            android:screenOrientation="portrait" >
         </activity>
  
         <!--  Register Activity -->
         <activity
             android:label="Register New Account"
-            android:name=".RegisterActivity" >
+            android:name=".RegisterActivity"
+            android:windowSoftInputMode="stateHidden" 
+            android:screenOrientation="portrait" >
         </activity>
         
         <!--  Upload image Activity -->
@@ -87,6 +92,13 @@
         <activity
             android:label="Friends Activity"
             android:name=".FriendsActivity" 
+            android:screenOrientation="portrait" >
+        </activity>
+        
+        <!--  Following Activity -->
+        <activity
+            android:label="Following Activity"
+            android:name=".FollowingActivity" 
             android:screenOrientation="portrait" >
         </activity>
         
