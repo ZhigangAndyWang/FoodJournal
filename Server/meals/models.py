@@ -5,6 +5,12 @@ import datetime
 from thumbs import ImageWithThumbsField 
 
 # Create your models here.
+
+class FriendList(models.Model):
+    owner = models.OneToOneField(User,related_name="friend_list")
+    friends = models.ManyToManyField(User,related_name = "followed_list")
+
+
 class Food(models.Model):
     user = models.ForeignKey(User)
     name = models.CharField(max_length=200,default='')
@@ -17,7 +23,7 @@ class Food(models.Model):
     t_tag = models.ForeignKey('TypeTag',null=True)
 
     def __str__(self):
-        return self.name
+        return self.image.url
     
 class Comment(models.Model):
     text = models.CharField(max_length=4000)

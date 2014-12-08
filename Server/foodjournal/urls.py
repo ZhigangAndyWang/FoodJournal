@@ -16,15 +16,25 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     #url('', include('django.contrib.auth.urls')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^$','meals.views.index',name='index'),
     url(r'^index/','meals.views.index',name='index'),
     url(r'^accounts/', include('registration.backends.default.urls')),
     url(r'^login/$', 'meals.views.customlogin',name="customizedlogin"),
+    #url(r'^twitterlogin/$', 'twitterauth.views.twitter_signin',name="twitter_signin"),
+    #url(r'^twitterreturn/$', 'twitterauth.views.twitter_return',name="twitter_return"),
+    url(r'',include('social_auth.urls')),
     url(r'^logout/$', 'django.contrib.auth.views.logout',
                                   {'next_page': '/index/'}),
+    #url(r'^register/$', 'backend': 'registration.backends.default.DefaultBackend',name="customizedregister"),
     url(r'^register/$', 'meals.views.customregister',name="customizedregister"),
     url(r'^homepage/','meals.views.homepage',name='homepage'),
     url(r'^uploadImage/','meals.views.uploadImage',name='uploadimage'),
     url(r'^getImages/username=(?P<userName>\w+)/$','meals.views.getImages',name='getimage'),
+
+    url(r'^recommend/username=(?P<userName>\w+)/$','meals.views.recommend',name='recommend'),
+    url(r'^tags/tag=(?P<tag>\w+)/$','meals.views.tags',name='tags'),
+
+    url(r'^getFriends/username=(?P<userName>\w+)/$','meals.views.getFriends',name='getFriends'),
 )
 
 if settings.DEBUG:  

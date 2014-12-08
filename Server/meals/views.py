@@ -1,6 +1,7 @@
 # Create your views here.
 import json,os
 from time import time
+from datetime import datetime
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login
@@ -11,20 +12,28 @@ from django.shortcuts import render_to_response,redirect,render,get_object_or_40
 #from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Permission
 from forms import UserCreateForm,UploadFileForm
-from meals.models import Food, Comment
+from meals.models import Food, Comment ,FriendList
 from django.http import Http404
 from django.template import RequestContext, loader
 from django.core.context_processors import csrf
 from foodjournal.settings import MEDIA_ROOT
 
-returnJson = 0;
 
-def index(request):
-    global returnJson
-    if request.user_agent.is_mobile:
+def ifReturnJson(request):
+    #return 1
+    family = request.user_agent.browser.family
+    if family == 'Safari':
+        returnJson = 0
+    elif family == 'Chrome':
         returnJson = 1
     else:
-        returnJson = 0
+        returnJson = 1
+    
+    return returnJson
+
+
+def index(request):
+    returnJson = ifReturnJson(request)
     #if request.method == 'GET':
     #    print 'get'
     #elif request.method == 'POST':
@@ -38,17 +47,14 @@ def index(request):
 
 
 def customregister(request):
-    global returnJson
-    if request.user_agent.is_mobile:
-        returnJson = 1
-    else:
-        returnJson = 0
+    returnJson = ifReturnJson(request)
     data_dict = {}
     data_dict['type'] = 'register'
     if request.method == 'POST':
         form = UserCreateForm(request.POST)
         if form.is_valid():
             new_user = form.save()
+
             data_dict['success'] = 1
             data_dict['uid'] = new_user.id
             data_dict['username'] = new_user.username
@@ -83,11 +89,7 @@ def customregister(request):
 
 
 def customlogin(request):
-    global returnJson
-    if request.user_agent.is_mobile:
-        returnJson = 1
-    else:
-        returnJson = 0
+    returnJson = ifReturnJson(request)
     if request.method == 'POST':
         data_dict = {}
         data_dict['type'] = 'login'
@@ -117,11 +119,7 @@ def customlogin(request):
     return login(request)
 
 def uploadImage(request):
-    global returnJson
-    if request.user_agent.is_mobile:
-        returnJson = 1
-    else:
-        returnJson = 0
+    returnJson = ifReturnJson(request)
     data_dict = {}
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -151,15 +149,11 @@ def handle_uploaded_file(request):
             destination.write(chunk)
     #bind the auth.User and meal.Food image database
     #new_food = Food.objects.create(user = user, image = file_path[14:], description = request.POST['description'])
-    new_food = Food.objects.create(user = user, image = file_path[20:], description = request.POST['description'])
+    new_food = Food.objects.create(user = user, pub_date = datetime.now(), image = file_path[20:], description = request.POST['description'])
     new_food.save()
 
 def getImages(request,userName):
-    global returnJson
-    if request.user_agent.is_mobile:
-        returnJson = 1
-    else:
-        returnJson = 0
+    returnJson = ifReturnJson(request)
     user = User.objects.get(username=userName)
     fs = user.food_set.all()
 
@@ -189,12 +183,99 @@ def generate_filepath(username, name):
     return directory+filename
 
 
-@login_required
 def homepage(request):
     #c = {}
     #c.update(csrf(request))
+    print 'authenticated?:', request.user.is_authenticated()
+    #print 'siteuser?:',request.siteuser
+    print request.user
+    print request.user.social_auth
 
     user = request.user
     username = user.username
     url = '/getImages/username='+username
     return redirect(url)
+
+def recommend(request,userName):
+    returnJson = ifReturnJson(request)
+    user = User.objects.get(username=userName)
+    fs = get_recommend_fs(user)
+
+    #if returnJson == 1:
+    data_dict = {}
+    images_list = []
+    for f in fs:
+        image_dict = {}
+        image_dict['imageUrl'] = f.image.url
+        image_dict['description'] = f.description
+        image_dict['created_date'] = str(f.pub_date)
+        image_dict['username'] = f.user.username
+        images_list.append(json.dumps(image_dict))
+
+    data_dict['images'] = images_list
+    if returnJson == 1:
+        return HttpResponse(json.dumps(data_dict),content_type='application/json')
+
+    elif returnJson == 0:
+        return render(request,'myMeal_details.html',{'fs':fs})
+
+def get_recommend_fs(user):
+    #TODO
+    #find most recent 3 uploaded food for user
+    #for each food, find similar foods using probabilities calculated with tags(exclude self)
+    fs = Food.objects.all().exclude(user=user)
+
+    return fs[:20]
+
+def tags(request,tag):
+    returnJson = ifReturnJson(request)
+    fs0 = Food.objects.filter(c_tag__name = tag )
+    fs1 = Food.objects.filter(t_tag__name = tag)
+    
+    fs = fs0 | fs1
+    #maximum 20 results
+    fs = fs[:20]
+    #if returnJson == 1:
+    data_dict = {}
+    images_list = []
+    for f in fs:
+        image_dict = {}
+        image_dict['imageUrl'] = f.image.url
+        image_dict['description'] = f.description
+        image_dict['created_date'] = str(f.pub_date)
+        image_dict['username'] = f.user.username
+        images_list.append(json.dumps(image_dict))
+
+    data_dict['images'] = images_list
+    if returnJson == 1:
+        return HttpResponse(json.dumps(data_dict),content_type='application/json')
+
+    elif returnJson == 0:
+        return render(request,'myMeal_details.html',{'fs':fs})
+
+
+def getFriends(request,userName):
+    returnJson = ifReturnJson(request)
+    
+    user = User.objects.get(username = userName)
+    friends = []
+    #friend_list_class = user.friend_list
+    if FriendList.objects.filter(owner=user):
+        friend_list_class = FriendList.objects.get(owner=user)
+        friends = friend_list_class.friends.all()
+
+
+    data_dict = {}
+    friends_list = []
+    for u in friends:
+        friend_dict = {}
+        friend_dict['username'] = u.username
+        friends_list.append(json.dumps(friend_dict))
+
+    data_dict['friends'] = friends_list 
+    if returnJson == 1:
+        return HttpResponse(json.dumps(data_dict),content_type='application/json')
+
+    elif returnJson == 0:
+        #TODO friend html
+        return render(request,'index.html')

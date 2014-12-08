@@ -89,6 +89,42 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
+# OAuth Keys
+TWITTER_CONSUMER_KEY = "MChFCw0y6sobHPtPXy4TXk9pa"
+TWITTER_CONSUMER_SECRET = "zefFFvr38oNenoIQXiPogmWte4Hnq4BQ5Iye3qPMS6vycL3Sbr"
+
+AUTHENTICATION_BACKENDS = (
+    'social_auth.backends.twitter.TwitterBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_DEFAULT_USERNAME = 'new_social_auth_user'
+SOCIAL_AUTH_UID_LENGTH = 16
+SOCIAL_AUTH_ASSOCIATION_HANDLE_LENGTH = 16
+SOCIAL_AUTH_NONCE_SERVER_URL_LENGTH = 16
+SOCIAL_AUTH_ASSOCIATION_SERVER_URL_LENGTH = 16
+SOCIAL_AUTH_ASSOCIATION_HANDLE_LENGTH = 16
+SOCIAL_AUTH_ENABLED_BACKENDS = ('twitter',)
+TEMPLATE_CONTEXT_PROCESSORS = (
+                'django.contrib.auth.context_processors.auth',
+                'social_auth.context_processors.social_auth_by_name_backends',
+                'social_auth.context_processors.social_auth_backends',
+                'social_auth.context_processors.social_auth_by_type_backends',
+                'social_auth.context_processors.social_auth_login_redirect',
+            )
+SOCIAL_AUTH_PIPELINE = (
+                'social_auth.backends.pipeline.social.social_auth_user',
+                'social_auth.backends.pipeline.associate.associate_by_email',
+                'social_auth.backends.pipeline.misc.save_status_to_session',
+                'social_auth.backends.pipeline.user.create_user',
+                'social_auth.backends.pipeline.social.associate_user',
+                'social_auth.backends.pipeline.social.load_extra_data',
+                'social_auth.backends.pipeline.user.update_user_details',
+                'twiiterauth.pipeline.get_user_avatar'
+            )
+
+#AUTH_PROFILE_MODULE = "twitterauth.UserProfile"
+
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'l)&amp;v4^wtvu6c31lq%17v(k^ej)xiq#rt(&amp;wp*9!ug0*(()83b)'
 
@@ -140,6 +176,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'registration',
     'meals',
+    'social_auth',
 )
 # Cache backend is optional, but recommended to speed up user agent parsing
 CACHES = {
@@ -181,6 +218,15 @@ LOGGING = {
 
 # Account settings
 ACCOUNT_ACTIVATION_DAYS = 10
-LOGIN_REDIRECT_URL = '/homepage/'
 LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/homepage/'
+#LOGIN_ERROR_URL    = '/login-error/'
+
+
+#Social Auth Redirect
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/another-login-url/'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/new-users-redirect-url/'
+SOCIAL_AUTH_NEW_ASSOCIATION_REDIRECT_URL = '/new-association-redirect-url/'
+SOCIAL_AUTH_DISCONNECT_REDIRECT_URL = '/account-disconnected-redirect-url/'
+SOCIAL_AUTH_BACKEND_ERROR_URL = '/new-error-url/'
 
