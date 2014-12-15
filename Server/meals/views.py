@@ -1,5 +1,5 @@
 # Create your views here.
-import json,os
+import json,os,random
 from time import time
 from datetime import datetime
 from django import forms
@@ -13,21 +13,24 @@ from django.shortcuts import render_to_response,redirect,render,get_object_or_40
 from django.contrib.auth.models import User, Permission
 from forms import UserCreateForm,UploadFileForm
 from meals.models import Food, Comment ,FriendList
+from meals.naiveBayes import *
 from django.http import Http404
 from django.template import RequestContext, loader
 from django.core.context_processors import csrf
 from foodjournal.settings import MEDIA_ROOT
+from django.db.models import Q
 
 
 def ifReturnJson(request):
     #return 1
     family = request.user_agent.browser.family
-    if family == 'Safari':
-        returnJson = 0
-    elif family == 'Chrome':
-        returnJson = 1
-    else:
-        returnJson = 1
+    returnJson = 0
+    #if family == 'Safari':
+    #    returnJson = 0
+    #elif family == 'Chrome':
+    #    returnJson = 1
+    #else:
+    #    returnJson = 1
     
     return returnJson
 
@@ -155,16 +158,16 @@ def handle_uploaded_file(request):
 def getImages(request,userName):
     returnJson = ifReturnJson(request)
     user = User.objects.get(username=userName)
-    fs = user.food_set.all()
+    fs = user.food_set.filter().order_by('-pub_date')
 
     #if returnJson == 1:
     data_dict = {}
     images_list = []
-    for f in fs:
+    for f in fs[:6]:
         image_dict = {}
         image_dict['imageUrl'] = f.image.url
         image_dict['description'] = f.description
-        image_dict['created_date'] = str(f.pub_date)
+        image_dict['created_date'] = str(f.pub_date)[:-6]
         images_list.append(json.dumps(image_dict))
 
     data_dict['images'] = images_list
@@ -208,7 +211,7 @@ def recommend(request,userName):
         image_dict = {}
         image_dict['imageUrl'] = f.image.url
         image_dict['description'] = f.description
-        image_dict['created_date'] = str(f.pub_date)
+        image_dict['created_date'] = str(f.pub_date)[:-6]
         image_dict['username'] = f.user.username
         images_list.append(json.dumps(image_dict))
 
@@ -220,21 +223,31 @@ def recommend(request,userName):
         return render(request,'myMeal_details.html',{'fs':fs})
 
 def get_recommend_fs(user):
-    #TODO
     #find most recent 3 uploaded food for user
     #for each food, find similar foods using probabilities calculated with tags(exclude self)
-    fs = Food.objects.all().exclude(user=user)
+    fs = Food.objects.all().exclude(user=user).order_by('-pub_date')[:3]
 
-    return fs[:20]
+    related_tag_names = [] 
+    for food in fs:
+        cl = get_cl()
+        tag = classify_tags(food.description,cl)
+        if tag not in related_tag_names: related_tag_names.append(tag) 
+
+    res = []
+    for tag_name in related_tag_names:
+        res.extend(Food.objects.filter(c_tag__name = tag_name).exclude(user=user).order_by('?')[0:5])
+
+    return res
 
 def tags(request,tag):
     returnJson = ifReturnJson(request)
-    fs0 = Food.objects.filter(c_tag__name = tag )
-    fs1 = Food.objects.filter(t_tag__name = tag)
+    #TODO HARDCODE
+    fs0 = Food.objects.filter(c_tag__name = tag ).exclude(user__username="andy")
+    fs1 = Food.objects.filter(t_tag__name = tag).exclude(user__username="andy")
     
     fs = fs0 | fs1
     #maximum 20 results
-    fs = fs[:20]
+    fs = fs[:10]
     #if returnJson == 1:
     data_dict = {}
     images_list = []
@@ -242,7 +255,7 @@ def tags(request,tag):
         image_dict = {}
         image_dict['imageUrl'] = f.image.url
         image_dict['description'] = f.description
-        image_dict['created_date'] = str(f.pub_date)
+        image_dict['created_date'] = str(f.pub_date)[:-6]
         image_dict['username'] = f.user.username
         images_list.append(json.dumps(image_dict))
 
